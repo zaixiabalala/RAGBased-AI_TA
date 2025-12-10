@@ -39,7 +39,7 @@ def generate_quiz(agent, topic="", difficulty="中等"):
     try:
         if not topic:
             # 随机从知识库中选择内容
-            context = agent.retrieve_context("随机选择一个知识点", top_k=1)[0]
+            context = get_weighted_random_content(agent)
         else:
             # 根据指定主题检索
             context = agent.retrieve_context(topic, top_k=2)[0]
@@ -75,3 +75,33 @@ def generate_quiz(agent, topic="", difficulty="中等"):
 
     except Exception as e:
         return f"生成习题失败: {str(e)}"
+
+
+def get_weighted_random_content(agent):
+    """带权重的随机内容选择"""
+    all_docs = agent.vector_store.get_all_documents()
+
+    if not all_docs:
+        return agent.retrieve_context("数学概念", top_k=1)[0]
+
+    weights = []
+    for doc in all_docs:
+        weight = 1.0  # 基础权重
+
+        filename = doc.get("metadata", {}).get("filename", "").lower()
+
+        if any(keyword in filename for keyword in ["homework", "hw", "作业", "exam", "考试", "test"]):
+            weight = 2.5  
+        elif any(keyword in filename for keyword in ["solution", "sol", "解答", "answer", "答案"]):
+            weight = 2.0 
+        elif any(keyword in filename for keyword in ["lecture", "讲义", "course", "课程"]):
+            weight = 1.8  
+        elif any(keyword in filename for keyword in ["review", "复习", "summary", "梳理"]):
+            weight = 1.5 
+        weights.append(weight)
+
+    # 加权随机选择一个文档
+    import random
+    selected_doc = random.choices(all_docs, weights=weights, k=1)[0]
+
+    return selected_doc["content"]
