@@ -40,7 +40,8 @@ Guidelines:
 2. Cite specific sources (filename and page number) when referencing course materials
 3. If the retrieved content doesn't fully answer the question, acknowledge this limitation
 4. Use clear and concise language suitable for students
-5. Maintain a helpful and professional tone"""
+5. Maintain a helpful and professional tone
+6. List all name of retrieved content, such as **.pdf, **.png"""
 
     def _build_hybrid_index(self):
         """构建混合检索索引"""

@@ -94,6 +94,19 @@ class TextSplitter:
                         "images": [],
                     }
                     chunks_with_metadata.append(chunk_data)
+            else:
+                # 其他类型（如 .png/.jpg 等图片，或未覆盖的类型）直接透传为单块
+                if content:
+                    chunk_data = {
+                        "content": content,
+                        "filename": doc.get("filename", "unknown"),
+                        "filepath": doc.get("filepath", ""),
+                        "filetype": filetype,
+                        "page_number": doc.get("page_number", 0),
+                        "chunk_id": 0,
+                        "images": doc.get("images", []),
+                    }
+                    chunks_with_metadata.append(chunk_data)
 
         print(f"\n文档处理完成，共 {len(chunks_with_metadata)} 个块")
         return chunks_with_metadata

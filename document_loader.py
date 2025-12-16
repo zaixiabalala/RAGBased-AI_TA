@@ -4,6 +4,7 @@ from typing import List, Dict, Optional
 import docx2txt
 from PyPDF2 import PdfReader
 from pptx import Presentation
+import easyocr  # 直接导入
 
 from config import DATA_DIR
 
@@ -15,6 +16,9 @@ class DocumentLoader:
     ):
         self.data_dir = data_dir
         self.supported_formats = [".pdf", ".pptx", ".docx", ".txt"]
+        # 仅保留前三种图片格式
+        self.image_formats = [".jpg", ".jpeg", ".png"]
+        self.supported_formats.extend(self.image_formats)
 
     def load_pdf(self, file_path: str) -> List[Dict]:
         """加载PDF文件，按页返回内容
@@ -77,6 +81,16 @@ class DocumentLoader:
             text = f.read()
         return text
 
+    def load_image(self, file_path: str, lang: Optional[str] = None) -> str:
+        """加载图片文件，使用 easyocr 提取文字"""
+        # 默认中英双语；lang 可选地限制为英文
+        langs = ["ch_sim", "en"] if (lang is None or lang.startswith("chi")) else ["en"]
+        # 直接初始化 Reader（CPU），如果你有 GPU 可将 gpu=True
+        reader = easyocr.Reader(langs, gpu=False)
+        texts = reader.readtext(file_path, detail=0, paragraph=True)
+        text = "\n".join(s.strip() for s in texts if s and str(s).strip())
+        return text
+
     def load_document(self, file_path: str) -> List[Dict[str, str]]:
         """加载单个文档，PDF和PPT按页/幻灯片分割，返回文档块列表"""
         ext = os.path.splitext(file_path)[1].lower()
@@ -121,6 +135,19 @@ class DocumentLoader:
                 )
         elif ext == ".txt":
             content = self.load_txt(file_path)
+            if content:
+                documents.append(
+                    {
+                        "content": content,
+                        "filename": filename,
+                        "filepath": file_path,
+                        "filetype": ext,
+                        "page_number": 0,
+                    }
+                )
+        elif ext in self.image_formats:
+            # 默认中英识别，尽量覆盖中文课件
+            content = self.load_image(file_path, lang=None)
             if content:
                 documents.append(
                     {
