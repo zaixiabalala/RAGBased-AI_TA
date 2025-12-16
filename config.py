@@ -2,7 +2,7 @@
 OPENAI_API_KEY = ""
 OPENAI_API_BASE = "https://dashscope.aliyuncs.com/compatible-mode/v1"
 MODEL_NAME = "qwen3-max"
-OPENAI_EMBEDDING_MODEL = "text-embedding-v4"
+OPENAI_EMBEDDING_MODEL = "text-embedding-v3"
 
 # 数据目录配置
 DATA_DIR = "./data"
