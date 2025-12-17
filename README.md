@@ -45,6 +45,10 @@ streamlit run uis/app.py
 - `document_loader.py`: 文档加载和处理
 - `data/`: 课程文档存放目录
 
+详细的项目结构和函数说明请查看：
+- 📂 [文件结构说明](docs/file_structure.md) - 完整的目录树和模块说明
+- 📊 [主要函数示意图](docs/function_diagram.md) - 核心函数流程和系统架构
+
 ## 配置
 
 在config.py中修改API密钥和其他参数。
